@@ -65,8 +65,13 @@ kitty                                                  # terminal
 dolphin                                                # kde file manager
 ark                                                    # kde file archiver
 vim                                                    # terminal text editor
+neovim                                                 # modern vim
 code                                                   # ide text editor
 obsidian                                               # knowledge management
+fcitx5                                                 # input method framework
+fcitx5-chinese-addons                                  # chinese input support
+fcitx5-configtool                                      # fcitx5 config gui
+yazi                                                   # terminal file manager
 
 # --------------------------------------------------- // Shell
 eza|zsh                                                # file lister for zsh
