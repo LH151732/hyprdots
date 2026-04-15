@@ -66,6 +66,7 @@ dolphin                                                # kde file manager
 ark                                                    # kde file archiver
 vim                                                    # terminal text editor
 code                                                   # ide text editor
+obsidian                                               # knowledge management
 
 # --------------------------------------------------- // Shell
 eza|zsh                                                # file lister for zsh
