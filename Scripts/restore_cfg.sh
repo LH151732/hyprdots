@@ -77,6 +77,15 @@ cat "${CfgLst}" | while read lst; do
 done
 
 if [ -z "${ThemeOverride}" ]; then
+
+    # initialize machine-specific configs from .example templates
+    for tmpl in monitors.conf userprefs.conf; do
+        if [ ! -f "${HOME}/.config/hypr/${tmpl}" ] && [ -f "${CfgDir}/.config/hypr/${tmpl}.example" ]; then
+            cp "${CfgDir}/.config/hypr/${tmpl}.example" "${HOME}/.config/hypr/${tmpl}"
+            echo -e "\033[0;32m[init]\033[0m ${HOME}/.config/hypr/${tmpl} <-- ${tmpl}.example"
+        fi
+    done
+
     if nvidia_detect && [ $(grep '^source = ~/.config/hypr/nvidia.conf' "${HOME}/.config/hypr/hyprland.conf" | wc -l) -eq 0 ]; then
         echo -e 'source = ~/.config/hypr/nvidia.conf # auto sourced vars for nvidia\n' >> "${HOME}/.config/hypr/hyprland.conf"
     fi
