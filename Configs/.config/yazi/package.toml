@@ -1,0 +1,49 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "b659791"
+hash = "99aa06d3014798d86001c324468d497f"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:lsar"
+rev = "b659791"
+hash = ""
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "b659791"
+hash = ""
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:rsync"
+rev = "1962818"
+hash = "99aa06d3014798d86001c324468d497f"
+
+[[plugin.deps]]
+use = "KKV9/compress"
+rev = "46a6b9f"
+hash = "771af2becc575a3f43d0542de823969d"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:zoom"
+rev = "1962818"
+hash = "fa268cb59989a87780605fdcfb8d99a9"
+
+[[plugin.deps]]
+use = "boydaihungst/restore"
+rev = "4eda0bf"
+hash = "778941e7f1ebbacd60f4e254bb3c51de"
+
+[[plugin.deps]]
+use = "uhs-robert/recycle-bin"
+rev = "fa68711"
+hash = "8714306b5cac6359edbacbf545fbd691"
+
+[[plugin.deps]]
+use = "atareao/convert"
+rev = "ce060d9"
+hash = "1c0465351f2a344e842f065ab316f265"
+
+[[flavor.deps]]
+use = "mingo99/tokyonight"
+rev = "f26ca68"
+hash = ""

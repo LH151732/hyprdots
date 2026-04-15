@@ -1,0 +1,78 @@
+[services.openwrt]
+type = "sftp"
+host = "192.168.31.223"
+user = "pi"
+port = 22
+
+[services.openwebui]
+type = "sftp"
+host = "100.123.223.53"
+user = "HL"
+port = 22
+
+[services.xps]
+type = "sftp"
+host = "100.81.83.10"
+user = "HL"
+port = 22
+
+[services.can]
+type = "sftp"
+host = "8.138.192.166"
+user = "root"
+port = 20037
+key_file = "/home/hello/.ssh/CN.pem"
+
+[services.hk]
+type = "sftp"
+host = "8.210.117.15"
+user = "root"
+port = 20037
+
+[services.pihole]
+type = "sftp"
+host = "100.117.8.53"
+user = "hl"
+port = 22
+
+[services.jetson]
+type = "sftp"
+host = "100.102.163.75"
+user = "jetson"
+port = 22
+
+[services.arch]
+type = "sftp"
+host = "100.122.188.128"
+user = "root"
+port = 22
+
+[services.rtx]
+type = "sftp"
+host = "100.75.91.125"
+user = "HL"
+port = 22
+
+[services.z13]
+type = "sftp"
+host = "100.127.34.118"
+user = "HL"
+port = 22
+
+[services.p3u]
+type = "sftp"
+host = "100.64.31.28"
+user = "HL"
+port = 22
+
+[services.p8]
+type = "sftp"
+host = "100.90.33.117"
+user = "hello"
+port = 22
+
+[services.air]
+type = "sftp"
+host = "100.97.74.59"
+user = "leihei"
+port = 22

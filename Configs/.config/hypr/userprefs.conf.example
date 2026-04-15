@@ -1,0 +1,8 @@
+# User preferences - machine specific, not tracked by git
+# This file is sourced at the end of hyprland.conf
+# Settings here override all defaults
+#
+# Examples:
+#   input { sensitivity = 0.5 }
+#   bind = SUPER, N, exec, obsidian
+#   exec-once = some-app
