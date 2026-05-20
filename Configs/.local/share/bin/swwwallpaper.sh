@@ -73,7 +73,10 @@ while getopts "nps:" option ; do
         Wall_Change n
         ;;
     p ) # set previous wallpaper
-        xtrans="outer"
+        # NOTE: 'outer' + --transition-pos crashes awww 0.12.0 daemon (bug).
+        # Fall back to 'grow' for safety; symmetry with 'n' is lost but at
+        # least the wallpaper actually renders.
+        xtrans="grow"
         Wall_Change p
         ;;
     s ) # set input wallpaper
