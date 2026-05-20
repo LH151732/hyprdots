@@ -15,13 +15,18 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Compare each file under ${cfgRoot} against its deployed counterpart in \$HOME,
-report drift introduced after install (local edits / missing / new).
+Compare HyDE-provided behavior scripts (default scope: .local/share/bin/ +
+.config/hypr/Script/) against their deployed counterparts in \$HOME, report
+drift introduced after install (local edits / missing / new).
+
+User-customized configs under .config/ are NOT checked by default — they're
+expected to drift. Use --all to widen scope to the entire Configs/ tree.
 
 Options:
   -v, --verbose          show unified diff body for each modified file
   -f, --filter PATTERN   only check repo-relative paths matching grep -E PATTERN
-                         (e.g. -f '\.local/share/bin' or -f wallbash)
+                         (e.g. -f wallbash)
+  -a, --all              scan entire Configs/ tree (not just scripts)
   -m, --modified-only    suppress 'missing' entries, only show MOD
   -s, --summary          one-line summary (no per-file list)
       --fix              overwrite drifted home files with repo copy (repo wins).
@@ -40,6 +45,14 @@ modified_only=0
 summary=0
 do_fix=0
 assume_yes=0
+scan_all=0
+
+# default scope: HyDE-provided behavior scripts only.
+# add a path here if HyDE starts shipping scripts elsewhere.
+script_paths=(
+    ".local/share/bin"
+    ".config/hypr/Script"
+)
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -48,6 +61,7 @@ while [ $# -gt 0 ]; do
         filter="$2"
         shift
         ;;
+    -a | --all) scan_all=1 ;;
     -m | --modified-only) modified_only=1 ;;
     -s | --summary) summary=1 ;;
     --fix) do_fix=1 ;;
@@ -128,7 +142,15 @@ while IFS= read -r -d '' repoFile; do
         mod_files+=("${rel}")
         mod_count=$((mod_count + 1))
     fi
-done < <(find "${cfgRoot}" \( -type f -o -type l \) -print0 2>/dev/null)
+done < <(
+    if [ "${scan_all}" = 1 ]; then
+        find "${cfgRoot}" \( -type f -o -type l \) -print0 2>/dev/null
+    else
+        for sp in "${script_paths[@]}"; do
+            [ -d "${cfgRoot}/${sp}" ] && find "${cfgRoot}/${sp}" \( -type f -o -type l \) -print0 2>/dev/null
+        done
+    fi
+)
 
 print_section() {
     local label="$1" color="$2" arr_name="$3"
