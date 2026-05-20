@@ -24,9 +24,13 @@ Options:
                          (e.g. -f '\.local/share/bin' or -f wallbash)
   -m, --modified-only    suppress 'missing' entries, only show MOD
   -s, --summary          one-line summary (no per-file list)
+      --fix              overwrite drifted home files with repo copy (repo wins).
+                         touches only MOD + SYMLINK rows, never MISS.
+                         backs up overwritten files to ~/.config/cfg_backups/audit-<ts>/
+  -y, --yes              skip confirmation prompt in --fix mode
   -h, --help             this help
 
-Exit code: 0 if no drift, 1 if any drift found.
+Exit code: 0 if no drift (or all fixes succeeded), 1 otherwise.
 EOF
 }
 
@@ -34,6 +38,8 @@ verbose=0
 filter=''
 modified_only=0
 summary=0
+do_fix=0
+assume_yes=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -44,6 +50,8 @@ while [ $# -gt 0 ]; do
         ;;
     -m | --modified-only) modified_only=1 ;;
     -s | --summary) summary=1 ;;
+    --fix) do_fix=1 ;;
+    -y | --yes) assume_yes=1 ;;
     -h | --help)
         usage
         exit 0
@@ -146,9 +154,9 @@ else
     if [ "${modified_only}" = 0 ]; then
         print_section "MISS" "${C_MISS}" miss_files
     fi
-    total=$((mod_count + link_count))
-    [ "${modified_only}" = 0 ] && total=$((total + miss_count))
-    if [ "${total}" -eq 0 ]; then
+    _t=$((mod_count + link_count))
+    [ "${modified_only}" = 0 ] && _t=$((_t + miss_count))
+    if [ "${_t}" -eq 0 ]; then
         printf '%sclean%s (%d checked, repo == \$HOME)\n' "${C_OK}" "${C_RST}" "${checked}"
     else
         printf '\n%schecked %d, drift: %d mod, %d miss, %d symlink%s\n' \
@@ -156,7 +164,82 @@ else
     fi
 fi
 
-if [ "$((mod_count + miss_count + link_count))" -gt 0 ]; then
+drift_total=$((mod_count + link_count))
+[ "${modified_only}" = 0 ] && drift_total=$((drift_total + miss_count))
+
+if [ "${do_fix}" = 1 ]; then
+    fix_total=$((mod_count + link_count))
+    if [ "${fix_total}" -eq 0 ]; then
+        echo "nothing to fix."
+        exit 0
+    fi
+
+    bkpDir="${HOME}/.config/cfg_backups/audit-$(date +'%y%m%d_%Hh%Mm%Ss')"
+    echo
+    printf '%s--fix%s will overwrite %d file(s) with repo copy.\n' "${C_MOD}" "${C_RST}" "${fix_total}"
+    printf 'backup target: %s\n' "${bkpDir}"
+
+    if [ "${assume_yes}" = 0 ]; then
+        printf 'proceed? [y/N] '
+        read -r ans
+        case "${ans}" in
+        y | Y | yes | YES) ;;
+        *)
+            echo "aborted."
+            exit 1
+            ;;
+        esac
+    fi
+
+    mkdir -p "${bkpDir}"
+    fix_fail=0
+
+    apply_one() {
+        local rel="$1"
+        local src="${cfgRoot}/${rel}"
+        local dst="${HOME}/${rel}"
+        local bkp="${bkpDir}/${rel}"
+        mkdir -p "$(dirname "${bkp}")" "$(dirname "${dst}")"
+        if [ -e "${dst}" ] || [ -L "${dst}" ]; then
+            cp -a "${dst}" "${bkp}" 2>/dev/null || true
+        fi
+        # symlink in repo → recreate as symlink
+        if [ -L "${src}" ]; then
+            rm -f "${dst}"
+            if ln -s "$(readlink "${src}")" "${dst}"; then
+                printf '  %s[fix]%s %s\n' "${C_OK}" "${C_RST}" "${rel}"
+                return 0
+            fi
+        elif cp -a "${src}" "${dst}"; then
+            printf '  %s[fix]%s %s\n' "${C_OK}" "${C_RST}" "${rel}"
+            return 0
+        fi
+        printf '  %s[FAIL]%s %s\n' "${C_MOD}" "${C_RST}" "${rel}"
+        return 1
+    }
+
+    for rel in "${mod_files[@]}"; do
+        apply_one "${rel}" || fix_fail=$((fix_fail + 1))
+    done
+    for rel in "${link_files[@]}"; do
+        # strip trailing annotation like " (repo=symlink, home=regular)"
+        clean="${rel% (*}"
+        apply_one "${clean}" || fix_fail=$((fix_fail + 1))
+    done
+
+    echo
+    if [ "${fix_fail}" -eq 0 ]; then
+        printf '%sapplied %d file(s)%s. backups at %s\n' \
+            "${C_OK}" "${fix_total}" "${C_RST}" "${bkpDir}"
+        exit 0
+    else
+        printf '%s%d of %d fix(es) failed%s. backups at %s\n' \
+            "${C_MOD}" "${fix_fail}" "${fix_total}" "${C_RST}" "${bkpDir}"
+        exit 1
+    fi
+fi
+
+if [ "${drift_total}" -gt 0 ]; then
     exit 1
 fi
 exit 0
