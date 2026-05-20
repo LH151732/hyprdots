@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#|---/ /+--------------------------------+---/ /|#
+#|--/ /-| pre-commit: secret scan        |--/ /-|#
+#|-/ /--| blocks commits containing      |-/ /--|#
+#|/ /---| API keys / tokens / privkeys   |/ /---|#
+#|---/ /+--------------------------------+---/ /|#
+
+set -u
+
+# patterns: name | regex (ERE)
+patterns=(
+    "OpenAI key|sk-[A-Za-z0-9_-]{32,}"
+    "Anthropic key|sk-ant-[A-Za-z0-9_-]{32,}"
+    "GitHub PAT|gh[pousr]_[A-Za-z0-9]{20,}"
+    "GitHub fine-grained PAT|github_pat_[A-Za-z0-9_]{20,}"
+    "AWS access key|A(KIA|SIA)[A-Z0-9]{16}"
+    "Slack token|xox[abprs]-[A-Za-z0-9-]{10,}"
+    "Google API key|AIza[A-Za-z0-9_-]{35}"
+    "Stripe key|sk_live_[A-Za-z0-9]{20,}"
+    "Private key block|-----BEGIN (RSA |DSA |EC |OPENSSH |PGP )?PRIVATE KEY"
+)
+
+# only inspect added (+) lines in the cached diff
+diff_added="$(git diff --cached --no-color -U0 | grep -E '^\+[^+]' || true)"
+
+if [ -z "${diff_added}" ]; then
+    exit 0
+fi
+
+hits=()
+for spec in "${patterns[@]}"; do
+    name="${spec%%|*}"
+    regex="${spec#*|}"
+    matches="$(printf '%s\n' "${diff_added}" | grep -E -e "${regex}" || true)"
+    if [ -n "${matches}" ]; then
+        hits+=("${name}: $(printf '%s' "${matches}" | head -1 | sed -E "s/(sk-[A-Za-z0-9_-]{6}).*/\1.../")")
+    fi
+done
+
+if [ ${#hits[@]} -eq 0 ]; then
+    exit 0
+fi
+
+# colors only if stderr is tty
+if [ -t 2 ]; then
+    R=$'\033[31;1m' D=$'\033[2m' N=$'\033[0m'
+else
+    R='' D='' N=''
+fi
+
+{
+    echo "${R}pre-commit: secret scan blocked this commit${N}"
+    echo
+    for h in "${hits[@]}"; do
+        echo "  - ${h}"
+    done
+    echo
+    echo "${D}If this is a false positive, bypass with: git commit --no-verify${N}"
+    echo "${D}If real, move the secret to ~/.zshenv or similar gitignored location.${N}"
+} >&2
+
+exit 1
