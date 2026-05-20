@@ -11,6 +11,10 @@ tgtFile="extensions/undefined_publisher.wallbash-0.0.1/themes/wallbash-color-the
 #// install  ext
 
 for i in "${!codeVsix[@]}" ;do
+    # Skip dirs that don't host extensions (e.g. .vscode-oss-shared/sharedStorage),
+    # otherwise the install-extension call below overwrites a sibling dir's freshly
+    # synced wallbash theme with the bundled .vsix defaults.
+    [ -d "${codeVsix[i]}/extensions" ] || continue
     if [ ! -f "${codeVsix[i]}/${tgtFile}" ] ; then
         [ -f "${cacheDir}/landing/Code_Wallbash.vsix" ] || curl -L -o "${cacheDir}/landing/Code_Wallbash.vsix" https://github.com/LH151732/hyprdots/raw/main/Source/arcs/Code_Wallbash.vsix
         case ${codeVsix[i]} in
