@@ -96,12 +96,14 @@ while getopts "nps:" option ; do
 done
 
 
-#// check swww daemon
+#// check awww daemon (binary was renamed from swww to awww in fork 0.12.0;
+#// keep /usr/bin/swww symlink for back-compat but call awww directly here
+#// so we don't depend on the symlink being intact).
 
-swww query &> /dev/null
+awww query &> /dev/null
 if [ $? -ne 0 ] ; then
-    swww-daemon --format xrgb &
-    swww query && swww restore
+    awww-daemon --format xrgb &
+    awww query && awww restore
 fi
 
 
@@ -115,4 +117,4 @@ fi
 #// apply wallpaper
 
 echo ":: applying wall :: \"$(readlink -f "${wallSet}")\""
-swww img "$(readlink "${wallSet}")" --transition-bezier .43,1.19,1,.4 --transition-type "${xtrans}" --transition-duration "${wallTransDuration}" --transition-fps "${wallFramerate}" --invert-y --transition-pos "$(hyprctl cursorpos | grep -E '^[0-9]' || echo "0,0")" &
+awww img "$(readlink "${wallSet}")" --transition-bezier .43,1.19,1,.4 --transition-type "${xtrans}" --transition-duration "${wallTransDuration}" --transition-fps "${wallFramerate}" --invert-y --transition-pos "$(hyprctl cursorpos | grep -E '^[0-9]' || echo "0,0")" &
