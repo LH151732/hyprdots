@@ -24,7 +24,8 @@ return {
     },
     -- 配置快捷键
     keys = {
-      { "<leader>tw", "<cmd>Twilight<cr>", desc = "Toggle Twilight" },
+      -- tw 留给 neotest watch (测试监视更常用), twilight 改成 tz (zen-like dim)
+      { "<leader>tz", "<cmd>Twilight<cr>", desc = "Toggle Twilight (Dim)" },
     },
     -- 或者使用 config 函数进行更复杂的设置
     -- config = function()

@@ -11,6 +11,8 @@ return {
     "saghen/blink.cmp",
     version = "*", -- 使用最新稳定版
     event = "InsertEnter",
+    -- rust fuzzy matcher 构建; cargo 本地可用, 一次 build 后显著提升匹配性能
+    build = "cargo build --release",
     dependencies = {
       -- "rafamadriz/friendly", -- 代码片段（如需直接用，要配 LuaSnip）
       "L3MON4D3/LuaSnip",
@@ -39,8 +41,8 @@ return {
         default = { "lsp", "path", "snippets", "buffer" },
       },
 
-      -- ⑥ 模糊匹配
-      fuzzy = { implementation = "lua" },
+      -- ⑥ 模糊匹配 (rust 实现更快, fallback 到 lua 如果 build 失败)
+      fuzzy = { implementation = "prefer_rust" },
     },
   },
 

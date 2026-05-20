@@ -2,7 +2,6 @@ return {
   -- Treesitter 配置，添加对多种语言的支持
   {
     "nvim-treesitter/nvim-treesitter",
-    dependencies = { "OXY2DEV/markview.nvim" },
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     main = "nvim-treesitter",
@@ -49,18 +48,6 @@ return {
     },
     priority = 100,
   },
-  -- Markdown 支持插件
-  {
-    "plasticboy/vim-markdown", -- 提供基本的 Markdown 支持
-    ft = { "markdown", "rmarkdown" },
-    config = function()
-      vim.g.vim_markdown_folding_disabled = 1
-      vim.g.vim_markdown_conceal = 0
-    end,
-  },
-  -- Pandoc 语法支持插件
-  {
-    "vim-pandoc/vim-pandoc-syntax", -- 支持 Pandoc 扩展语法
-    ft = { "markdown", "rmarkdown" },
-  },
+  -- markdown 的语法高亮由 treesitter + render-markdown.nvim 负责,
+  -- 不再使用 vim-markdown / vim-pandoc-syntax (conceal 会和 render-markdown 打架)
 }

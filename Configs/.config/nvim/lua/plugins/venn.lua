@@ -29,8 +29,7 @@ return {
           vim.b.venn_enabled = nil
         end
       end
-      -- toggle keymappings for venn using <leader>v
-      vim.api.nvim_set_keymap("n", "<leader>v", ":lua Toggle_venn()<CR>", { noremap = true })
+      -- <leader>v 的绑定由下面的 lazy `keys` 管理, 此处不再重复设置
     end,
     keys = {
       { "<leader>v", ":lua Toggle_venn()<CR>", desc = "Toggle Venn mode" },

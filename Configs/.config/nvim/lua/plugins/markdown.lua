@@ -1,4 +1,5 @@
 return {
+  -- 浏览器预览 markdown
   {
     "toppair/peek.nvim",
     build = "deno task --quiet build:fast",
@@ -6,9 +7,7 @@ return {
     config = function()
       require("peek").setup({
         theme = "dark",
-        -- 先用系统浏览器打开，绕过 webview 依赖
-        app = "browser", -- 等会儿可以改成具体浏览器，比如 "firefox" 或 {"chromium","--new-window"}
-        -- app = "webview", -- 想用嵌入式预览再改回这行
+        app = "browser",
       })
       vim.api.nvim_create_user_command("PeekOpen", function()
         require("peek").open()
@@ -18,26 +17,111 @@ return {
       end, {})
     end,
   },
-  -- For `plugins/markview.lua` users.
+
+  -- Inline markdown 渲染 (替代 markview.nvim, 无闪烁)
   {
-    "OXY2DEV/markview.nvim",
-    lazy = false,
-    priority = 49,
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.icons" },
+    ft = { "markdown", "quarto" },
     opts = {
-      experimental = {
-        check_rtp_message = false,
+      -- 所有模式 (normal/insert/visual/...) 都渲染
+      render_modes = true,
+      -- Obsidian Live Preview 风格: 光标所在元素显示 raw, 其他保持渲染
+      anti_conceal = {
+        enabled = true,
+        above = 0, -- 光标行以上 0 行就恢复渲染
+        below = 0, -- 光标行以下 0 行就恢复渲染
       },
-      preview = {
-        modes = { "n", "no", "c", "i" },
-        hybrid_modes = { "n", "no", "c", "i" },
-        -- false = node-wise 模式，只清除光标下的语法节点
-        -- true = line-wise 模式，清除整行
-        linewise_hybrid_mode = false,
+
+      heading = {
+        enabled = true,
+        sign = false, -- 不在 signcolumn 放图标, 保持干净
+        icons = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰎱 ", "󰎳 " },
+        width = "block", -- 背景只覆盖标题内容, 不延伸到行尾
+        left_pad = 0,
+        right_pad = 2,
       },
+
+      code = {
+        enabled = true,
+        style = "full", -- 完整: 语言图标 + 顶部 label + 背景色 + 边框
+        position = "left",
+        language_pad = 1,
+        width = "block", -- 代码块背景不延伸到行尾, 看起来像真正的 "块"
+        left_pad = 0,
+        right_pad = 2,
+        border = "thin", -- thick = 粗边框, thin = 细线, hide = 不显示
+        highlight_language = nil, -- 自动根据语言上色
+      },
+
+      bullet = {
+        enabled = true,
+        icons = { "●", "○", "◆", "◇" },
+      },
+
+      checkbox = {
+        enabled = true,
+        unchecked = { icon = "󰄱 " },
+        checked = { icon = " " },
+      },
+
+      quote = {
+        enabled = true,
+        icon = "▋",
+      },
+
+      pipe_table = {
+        enabled = true,
+        style = "full",
+      },
+
+      -- GFM callouts (> [!NOTE], > [!WARNING] 等)
+      callout = {
+        note = { raw = "[!NOTE]", rendered = "󰋽 Note" },
+        tip = { raw = "[!TIP]", rendered = "󰌶 Tip" },
+        important = { raw = "[!IMPORTANT]", rendered = " Important" },
+        warning = { raw = "[!WARNING]", rendered = "󰀪 Warning" },
+        caution = { raw = "[!CAUTION]", rendered = "󰳦 Caution" },
+      },
+
+      latex = { enabled = false }, -- 不需要 latex, 关掉省资源
+
+      -- 强制重新 parse 的事件. gg/G 大跳跃后手动触发 User RenderMarkdownRefresh 让重渲染
+      change_events = { "User" },
     },
     keys = {
-      { "<leader>mh", "<CMD>Markview HybridToggle<CR>", desc = "Toggle Hybrid Mode" },
-      { "<leader>ml", "<CMD>Markview linewiseToggle<CR>", desc = "Toggle Line-wise Hybrid" },
+      { "<leader>mh", "<CMD>RenderMarkdown toggle<CR>", desc = "切换 markdown 渲染" },
+      {
+        "<leader>mR",
+        function()
+          vim.api.nvim_exec_autocmds("User", { modeline = false })
+        end,
+        desc = "强制刷新 markdown 渲染",
+      },
     },
+    config = function(_, opts)
+      require("render-markdown").setup(opts)
+
+      -- 修复 gg/G 后 render-markdown 偶发不刷新 (非 force 事件遇到 parse 未完成被 skip)
+      -- 发一个 User autocmd, 由 change_events = {"User"} 触发 force re-parse
+      local function refresh()
+        vim.schedule(function()
+          vim.api.nvim_exec_autocmds("User", { modeline = false })
+        end)
+      end
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "markdown", "quarto" },
+        callback = function(ev)
+          local map = function(lhs, rhs)
+            vim.keymap.set("n", lhs, function()
+              vim.cmd("normal! " .. rhs)
+              refresh()
+            end, { buffer = ev.buf, silent = true, desc = "Jump + refresh render" })
+          end
+          map("gg", "gg")
+          map("G", "G")
+        end,
+      })
+    end,
   },
 }

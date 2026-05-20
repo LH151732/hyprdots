@@ -9,7 +9,7 @@
 ![NVIDIA](https://img.shields.io/badge/NVIDIA-RTX_PRO_4000-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
 ![Wayland](https://img.shields.io/badge/Wayland-FFBC00?style=for-the-badge&logo=wayland&logoColor=black)
 
-基于 [HyDE](https://github.com/LH151732/hyprdots) 的 Hyprland 配置, 针对双便携屏上下排列 + NVIDIA 独显场景定制.
+基于 [HyDE](https://github.com/prasanthrangan/hyprdots) 的 Hyprland 配置, 针对双便携屏上下排列 + NVIDIA 独显场景定制.
 
 ---
 
@@ -17,11 +17,11 @@
 
 ## • 硬件 •
 
-| 组件 | 型号 |
-|:-----|:-----|
-| CPU | Intel Arrow Lake-S |
-| dGPU | NVIDIA RTX PRO 4000 Blackwell SFF |
-| iGPU | Intel Graphics |
+| 组件   | 型号                                |
+| :----- | :---------------------------------- |
+| CPU    | Intel Arrow Lake-S                  |
+| dGPU   | NVIDIA RTX PRO 4000 Blackwell SFF   |
+| iGPU   | Intel Graphics                      |
 | 显示器 | 2x RTK Monitor 2560x1600@240Hz (DP) |
 
 ## • 显示器布局 •
@@ -94,6 +94,7 @@
 4. 执行 `hyprctl reload` 使配置生效
 
 生成的配置示例:
+
 ```conf
 monitor = DP-6,2560x1600@240,0x1000,1.6
 monitor = DP-8,2560x1600@240,0x0,1.6
@@ -120,8 +121,8 @@ hyprctl reload
 
 ## • 分支 •
 
-| 分支 | 设备 | 说明 |
-|:-----|:-----|:-----|
+| 分支     | 设备                        | 说明                  |
+| :------- | :-------------------------- | :-------------------- |
 | `p3u-nv` | Arrow Lake-S + RTX PRO 4000 | 双便携屏, NVIDIA 驱动 |
 
 ## • 特殊配置说明 •
@@ -143,7 +144,6 @@ XWayland 应用通过 `Xft.dpi` (`.Xresources`) 控制 DPI.
 
 </details>
 
-
 <details>
 <summary><b>输入法</b></summary>
 
@@ -159,6 +159,6 @@ env = QT_IM_MODULE, fcitx
 
 <div align="center">
 
-*配置更新记录见 [CHANGELOG.md](CHANGELOG.md)*
+_配置更新记录见 [CHANGELOG.md](CHANGELOG.md)_
 
 </div>

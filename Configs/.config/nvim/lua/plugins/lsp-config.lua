@@ -219,8 +219,7 @@ return {
         "tailwindcss-language-server", -- Tailwind CSS
         "svelte-language-server", -- Svelte
         "html-lsp", -- HTML
-        "rust-analyzer", -- Rust LSP
-        "rustfmt", -- Rust formatter
+        "rust-analyzer", -- Rust LSP (rustfmt 由 rustup 提供, 不走 Mason)
         "clangd", -- C/C++ LSP
         "gopls", -- Go LSP
         "gofumpt", -- Go formatter
@@ -392,7 +391,7 @@ return {
           vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "显示文档" })
           vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "转到实现" })
           vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "签名帮助" })
-          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "重命名" })
+          -- <leader>rn 由 inc-rename.nvim 接管 (实时预览的 LSP rename), 这里不再覆盖
           vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "代码操作" })
           vim.keymap.set("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "查找引用" })
           vim.keymap.set("n", "<leader>f", function()

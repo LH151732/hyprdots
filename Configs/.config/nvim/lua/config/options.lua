@@ -3,6 +3,14 @@
 -- Add any additional options here
 vim.g.mapleader = " "
 
+-- Python host for remote plugins (molten-nvim 等)
+vim.g.python3_host_prog = vim.fn.stdpath("config") .. "/.venv/bin/python"
+
+-- 禁用不使用的 rplugin provider, 消除 checkhealth 噪音
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
 vim.scriptencoding = "utf-8"
 vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
@@ -33,7 +41,6 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.splitkeep = "cursor"
 vim.opt.mouse = ""
-vim.opt.number = true
 vim.opt.relativenumber = false
 
 vim.opt.formatoptions:append({ "r" })
